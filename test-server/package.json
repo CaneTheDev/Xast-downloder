@@ -1,0 +1,12 @@
+{
+  "name": "xast-test-server",
+  "version": "1.0.0",
+  "description": "Test server for Xast Downloader",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["test", "server", "download"],
+  "author": "",
+  "license": "MIT"
+}

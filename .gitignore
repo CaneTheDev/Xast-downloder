@@ -1,0 +1,69 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+*.log
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+## Visual Studio
+.vs/
+*.vsidx
+*.vspscc
+*.vsscc
+
+## Rider
+.idea/
+*.sln.iml
+
+## VS Code
+.vscode/
+!.vscode/launch.json
+!.vscode/tasks.json
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+## NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## macOS
+.DS_Store
+
+## Downloads folder (for testing)
+downloads/
+temp/
+
+## Test server
+test-server/node_modules/
+
+## Results folder
+results/

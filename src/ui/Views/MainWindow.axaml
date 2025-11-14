@@ -1,0 +1,214 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ui.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+        x:Class="ui.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Xast Downloader"
+        Width="800" Height="500"
+        MinWidth="600" MinHeight="400">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+        
+        <!-- Title -->
+        <TextBlock Grid.Row="0" 
+                   Text="⚡ Xast Downloader" 
+                   FontSize="24" 
+                   FontWeight="Bold"
+                   Margin="0,0,0,20"/>
+
+        <!-- URL Input -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,15">
+            <TextBlock Text="Download URL:" Margin="0,0,0,5"/>
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox Grid.Column="0"
+                         Text="{Binding DownloadUrl}" 
+                         Watermark="https://example.com/file.zip"
+                         IsEnabled="{Binding !IsDownloading}"/>
+                <Button Grid.Column="1" 
+                        Content="Test" 
+                        Margin="10,0,0,0"
+                        Width="80"
+                        Command="{Binding TestConnectionCommand}"
+                        IsEnabled="{Binding !IsTesting}"
+                        ToolTip.Tip="Test server capabilities and get recommended connection count"/>
+            </Grid>
+            <TextBlock Text="{Binding ServerCapabilities}" 
+                       FontSize="11" 
+                       Foreground="#0066CC"
+                       Margin="0,5,0,0"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ServerCapabilities, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+        </StackPanel>
+
+        <!-- Save Directory -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,15">
+            <TextBlock Text="Save To:" Margin="0,0,0,5"/>
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox Grid.Column="0" 
+                         Text="{Binding SaveDirectory}" 
+                         Watermark="C:\Users\YourName"
+                         IsEnabled="{Binding !IsDownloading}"/>
+                <Button Grid.Column="1" 
+                        Content="Browse" 
+                        Margin="10,0,0,0"
+                        Command="{Binding BrowseSavePathCommand}"
+                        IsEnabled="{Binding !IsDownloading}"/>
+            </Grid>
+            <TextBlock Text="{Binding SavePath}" 
+                       FontSize="11" 
+                       Foreground="#666"
+                       Margin="0,5,0,0"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- Connection Count -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,20">
+            <TextBlock Text="Connections:" Margin="0,0,0,5"/>
+            <ComboBox ItemsSource="{Binding ConnectionOptions}"
+                      SelectedItem="{Binding ConnectionCount}"
+                      Width="150"
+                      HorizontalAlignment="Left"
+                      IsEnabled="{Binding !IsDownloading}"
+                      ToolTip.Tip="Number of parallel connections to use (if server supports it)"/>
+            <TextBlock Text="💡 Tip: More connections isn't always faster! Use the Test button to find the optimal setting. 128 connections often has too much overhead." 
+                       FontSize="10" 
+                       Foreground="#666"
+                       Margin="0,5,0,0"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- Downloads Section -->
+        <TabControl Grid.Row="4" Margin="0,0,0,20">
+            <!-- Active Downloads Tab -->
+            <TabItem Header="Active Downloads">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding ActiveDownloads}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#E0E0E0" 
+                                        BorderThickness="1" 
+                                        CornerRadius="8"
+                                        Padding="15"
+                                        Margin="0,0,0,10">
+                                    <Grid RowDefinitions="Auto,Auto,Auto,Auto">
+                                        <!-- File Name and Actions -->
+                                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+                                            <TextBlock Grid.Column="0" 
+                                                       Text="{Binding FileName}" 
+                                                       FontSize="14" 
+                                                       FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5">
+                                                <Button Content="⏸" 
+                                                        Command="{Binding PauseCommand}"
+                                                        IsVisible="{Binding CanPause}"
+                                                        Width="32" Height="32"
+                                                        ToolTip.Tip="Pause"/>
+                                                <Button Content="▶" 
+                                                        Command="{Binding ResumeCommand}"
+                                                        IsVisible="{Binding CanResume}"
+                                                        Width="32" Height="32"
+                                                        ToolTip.Tip="Resume"/>
+                                                <Button Content="✕" 
+                                                        Command="{Binding CancelCommand}"
+                                                        IsVisible="{Binding CanCancel}"
+                                                        Width="32" Height="32"
+                                                        ToolTip.Tip="Cancel"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!-- Status -->
+                                        <TextBlock Grid.Row="1" 
+                                                   Text="{Binding Status}" 
+                                                   FontSize="12"
+                                                   Foreground="#666"
+                                                   Margin="0,0,0,8"/>
+
+                                        <!-- Progress Bar -->
+                                        <ProgressBar Grid.Row="2" 
+                                                     Value="{Binding Progress}" 
+                                                     Maximum="100"
+                                                     Height="20"
+                                                     Margin="0,0,0,10"/>
+
+                                        <!-- Stats -->
+                                        <Grid Grid.Row="3" ColumnDefinitions="*,*,*,*">
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="Downloaded" FontSize="10" Foreground="#999"/>
+                                                <TextBlock Text="{Binding Downloaded}" FontSize="11" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="Speed" FontSize="10" Foreground="#999"/>
+                                                <TextBlock Text="{Binding Speed}" FontSize="11" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="ETA" FontSize="10" Foreground="#999"/>
+                                                <TextBlock Text="{Binding Eta}" FontSize="11" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="3">
+                                                <TextBlock Text="Connections" FontSize="10" Foreground="#999"/>
+                                                <TextBlock Text="{Binding ConnectionsDisplay}" FontSize="11" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- History Tab -->
+            <TabItem Header="History">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding DownloadHistory}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#E0E0E0" 
+                                        BorderThickness="1" 
+                                        CornerRadius="8"
+                                        Padding="15"
+                                        Margin="0,0,0,10">
+                                    <Grid RowDefinitions="Auto,Auto,Auto">
+                                        <TextBlock Grid.Row="0" 
+                                                   Text="{Binding FileName}" 
+                                                   FontSize="14" 
+                                                   FontWeight="SemiBold"
+                                                   Margin="0,0,0,5"/>
+                                        <TextBlock Grid.Row="1" 
+                                                   Text="{Binding Status}" 
+                                                   FontSize="12"
+                                                   Foreground="#666"
+                                                   Margin="0,0,0,5"/>
+                                        <ProgressBar Grid.Row="2" 
+                                                     Value="{Binding Progress}" 
+                                                     Maximum="100"
+                                                     Height="15"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!-- Download Button -->
+        <Button Grid.Row="5" 
+                Content="Add Download"
+                Command="{Binding StartDownloadCommand}"
+                HorizontalAlignment="Stretch"
+                Height="45"
+                FontSize="16"
+                FontWeight="SemiBold"/>
+    </Grid>
+
+</Window>
